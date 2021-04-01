@@ -9,6 +9,7 @@ import time
 
 # OpenAI Gym
 import gym
+
 # OpenCog
 from opencog.pln import *
 
@@ -24,6 +25,7 @@ env = gym.make('Chase-v0')
 ###############
 # Chase Agent #
 ###############
+
 
 class ChaseAgent(OpencogAgent):
     def __init__(self, env, action_space, p_goal, n_goal):
@@ -113,6 +115,7 @@ class ChaseAgent(OpencogAgent):
     #                                      go_right_eat_cogscm,
     #                                      go_left_eat_cogscm])
 
+
 if __name__ == "__main__":
     atomspace = AtomSpace()
     set_default_atomspace(atomspace)
@@ -141,7 +144,7 @@ if __name__ == "__main__":
     lt_period = 200             # Duration of a learning-training iteration
     for i in range(lt_iterations):
         ca.reset_action_counter()
-        par = ca.accumulated_reward # Keep track of the reward before
+        par = ca.accumulated_reward  # Keep track of the reward before
         # Discover patterns to make more informed decisions
         agent_log.info("Start learning ({}/{})".format(i + 1, lt_iterations))
         ca.learn()

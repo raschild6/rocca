@@ -78,7 +78,7 @@ class OpencogAgent:
         agent_log.set_level("debug")
         # agent_log.set_sync(True)
         ure_logger().set_level("info")
-        # ure_logger().set_sync(True)
+        # ure_logger().set_sync(True)s
 
         # Load miner
         scheme_eval(self.atomspace, "(use-modules (opencog miner))")
@@ -88,9 +88,9 @@ class OpencogAgent:
         # Load PLN
         scheme_eval(self.atomspace, "(use-modules (opencog pln))")
         # scheme_eval(self.atomspace, "(pln-load-rule 'predictive-implication-scope-direct-introduction)")
-        scheme_eval(self.atomspace, "(pln-load-rule 'predictive-implication-scope-direct-evaluation)")
+        # scheme_eval(self.atomspace, "(pln-load-rule 'predictive-implication-scope-direct-evaluation)")
         # No need of predictive implication for now
-        # scheme_eval(self.atomspace, "(pln-load-rule 'predictive-implication-direct-evaluation)")
+        scheme_eval(self.atomspace, "(pln-load-rule 'predictive-implication-direct-evaluation)")
         scheme_eval(self.atomspace, "(pln-log-atomspace)")
 
     def reset_action_counter(self):
@@ -300,7 +300,7 @@ class OpencogAgent:
 
         vardecl = VariableNode("$vardecl")
         antecedent = VariableNode("$antecedent")
-        query = QuoteLink(PredictiveImplicationScopeLink(UnquoteLink(vardecl),
+        query = QuoteLink(PredictiveImplicationLink(UnquoteLink(vardecl),
                                                          to_nat(expiry),
                                                          UnquoteLink(antecedent),
                                                          goal))
@@ -462,7 +462,7 @@ class OpencogAgent:
         lag = SLink(ZLink())
 
         ntvardecl = self.get_nt_vardecl(pattern)
-        preimp = PredictiveImplicationScopeLink(ntvardecl, lag, pt, pd)
+        preimp = PredictiveImplicationLink(ntvardecl, lag, pt, pd)
         # Make sure all variables are in the antecedent
         vardecl_vars = set(get_free_variables(ntvardecl))
         pt_vars = set(get_free_variables(pt))

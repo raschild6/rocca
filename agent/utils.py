@@ -16,7 +16,7 @@ import scipy.special as sp
 from opencog.atomspace import AtomSpace, TruthValue
 from opencog.atomspace import types
 from opencog.atomspace import get_type, is_a
-from opencog.exec import execute_atom
+from opencog.execute import execute_atom
 from opencog.type_constructors import *
 from opencog.spacetime import *
 from opencog.pln import *
