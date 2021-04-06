@@ -1,0 +1,229 @@
+
+						---== Steps of Chase.py ==---
+
+
+* Loop Training/Learning:
+
+	1. Learn
+	2. Step
+	3. accumulated_reward
+
+
+
+1. learn()
+	Only learn cognitive schematics.
+	For each action, mine its relationship to the goal,
+        positively and negatively, as well as more general succedents.
+	
+	- mine_temporal_patterns()
+		Present
+		  AtTime
+		    X
+		    T
+		  AtTime
+		    Y
+		    T + lag-1
+		  AtTime
+		    Z
+		    T + lag-1 + lag-2
+	
+	- surprises_to_predictive_implications()
+		Turn patterns into predictive implication scopes.
+			
+		- get_pattern()
+			Extract the pattern wrapped in a surprisingness evaluation.
+			That is given
+
+			Evaluation
+			  <surprisingness-measure>
+			  List
+			    <pattern>
+			    <db>
+
+			return <pattern>
+
+		- to_predictive_implication_scope()
+			Turn a given pattern into a predictive implication scope with its TV.
+			For instance if the pattern is
+
+			Lambda
+			  Variable "$T"
+			  Present
+			    AtTime
+			      Execution
+				Schema "Eat"
+			      Variable "$T"
+			    AtTime
+			      Evaluation
+				Predicate "Reward"
+				Number 1
+			      S
+				Variable "$T"
+
+			then the resulting predictive implication scope is
+
+			PredictiveImplicationScope
+			  VariableList
+			  S Z
+			  Execution
+			    Schema "Eat"
+			  Evaluation
+			    Predicate "Reward"
+			    Number 1
+
+			Note the empty variable declaration.
+
+			However if the pattern is
+
+			Lambda
+			  VariableList
+			    Variable "$T"
+			    Variable "$A"
+			  Present
+			    AtTime
+			      Evaluation
+				Predicate "Eatable"
+				Variable "$X"
+			      Variable "$T"
+			    AtTime
+			      Execution
+				Schema "Eat"
+			      Variable "$T"
+			    AtTime
+			      Evaluation
+				Predicate "Reward"
+				Number 1
+			      S
+				Variable "$T"
+
+			then the resulting predictive implication scope is
+
+			PredictiveImplicationScope
+			  Variable "$X"
+			  S Z
+			  And
+			    Evaluation
+			      Predicate "Eatable"
+			      Variable "$X"
+			    Execution
+			      Schema "Eat"
+			  Evaluation
+			    Predicate "Reward"
+			    Number 1
+
+			TODO: for now if the succedent is
+
+			  Evaluation
+			    Predicate "Reward"
+			    Number 0
+
+			then the resulting predictive implication (scope) is
+
+			PredictiveImplication <1 - s, c>
+			  <antecedent>
+			  Evaluation
+			    Predicate "Reward"
+			    Number 1
+
+			that is the negative goal is automatically converted into a
+			positive goal with low strength on the predictive implication.
+		
+			
+			get_nt_vardecl(pattern) = Get the vardecl of pattern excluding the time variable.
+
+			
+		- pln_bc()
+			Call PLN backward chainer with the given query and parameters.  Return a python list of solutions.
+
+		- is_desiderable()
+			Return True iff the cognitive schematic is desirable.  
+			For now to be desirable a cognitive schematic must have:
+			0. a well define atom 
+			1. its confidence above zero 
+			2. its action fully grounded 
+			3. all its variables in the antecedent
+
+
+2. step()
+
+	- record()
+		Timestamp and record an atom to the Percepta Record.  
+		That is add the following in the atomspace, foreach observation  
+		
+		MemberLink (stv 1 1)   
+		  AtTimeLink <tv>
+		    <atom>
+		    <i>
+		  <self.percepta_record>
+
+	- make_goal()
+		Define the goal of the current iteration.  
+		By default the goal of the current iteration is to have a reward of 1.  
+		
+		Evaluation
+  		  Predicate "Reward"   
+	 	  Number 1
+
+	- plan()		
+		Plan the next actions given a goal and its expiry time offset. 
+		Return a python list of cognivite schematics meeting the expiry constrain.  
+		Whole cognitive schematics are output in order to make a decision based on their truth values and priors.  
+		The format for a cognitive schematic is as follows  
+
+		PredictiveImplicationScope <tv>   
+		  <vardecl>   
+		  <lag-n>   
+		  SequentialAnd [optional]     
+		    <lag-n-1>     
+		    ...       
+		    SequentialAnd         
+		      <lag-1>         
+		      And           
+			<context>           
+			<execution-1>     
+		  <execution-n>   
+		<goal>  
+
+		For now it is assumed that <execution-1> is fully grounded.  
+		The cognitive schematics meets the temporal constrain if the total lag is lower or equal to the expiry.
+
+	- deduce()
+		Return an action distribution given a list cognitive schematics.  
+		The action distribution is actually a second order distribution, i.e. each action is weighted with a truth value. 
+		Such truth value, called the action truth value, corresponds to the second order probability of acheiving the goal if the action is taken right now.  
+		Formally the meaning of the action truth value can be expressed as follows:
+
+		Subset <action-tv>   
+		  SubjectivePaths     
+		    AtTime       
+		      Execution         
+		        <action>       
+		      <i>   
+		  SubjectivePaths     
+		     AtTime       
+		       <goal>       
+		       <i + offset>  
+
+		where
+		
+		SubjectivePaths   
+		  <P>
+
+		is the set of all subjective paths compatible with <P>, 
+		and a subjective path is a sequence of sujective states (atomspace snapshots) indexed by time.  
+		In order to infer such action truth value one needs to perform deduction (or modus ponens) on the cognitive schematics, 
+		combining the probability of the context being currently true.
+
+	- decide()
+		Select the next action to enact from a mixture model of cogscms.  
+		The action is selected from the action distribution, a list of pairs (action, tv), obtained from deduce.  
+		The selection uses Thompson sampling leveraging the second order distribution to balance exploitation and exploration. 
+		See http://auai.org/uai2016/proceedings/papers/20.pdf for more details about Thompson Sampling.
+
+	- Timestamp the action that is about to be executed
+
+	- Increment the counter for that action and log it
+
+	- Increase the step count and run the next step of the environment
+
+3. accumulated_reward and action_counter
