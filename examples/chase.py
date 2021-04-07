@@ -112,7 +112,7 @@ if __name__ == "__main__":
     ca = ChaseAgent(wrapped_env)
 
     # Training/learning loop
-    lt_iterations = 3           # Number of learning-training iterations
+    lt_iterations = 2           # Number of learning-training iterations
     lt_period = 200             # Duration of a learning-training iteration
     for i in range(lt_iterations):
         ca.reset_action_counter()
