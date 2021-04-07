@@ -34,8 +34,8 @@ PLAYER_TRANS_Y = 0.6
 class Action(Enum):
     LEFT = 0
     RIGHT = 1
-    STAY = 2
-    EAT = 3
+    EAT = 2
+    STAY = 3
 
 
 class Position(Enum):
@@ -60,7 +60,7 @@ class ChaseEnv(gym.Env):
     }
 
     def __init__(self):
-        self.action_space = spaces.Discrete(4)
+        self.action_space = spaces.Discrete(4)              # Change to 3 if u want to remove STAY action
         self.observation_space = spaces.Tuple((
             spaces.Discrete(2),  # Agent Position
             spaces.Discrete(3)  # Food pellet

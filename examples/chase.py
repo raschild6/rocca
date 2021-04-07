@@ -31,6 +31,7 @@ env = gym.make('Chase-v0')
 class CartPoleWrapper(GymWrapper):
     def __init__(self, env):
         action_list = ["Go Left", "Go Right", "Stay", "Eat"]
+        # action_list = ["Go Left", "Go Right", "Eat"]      # used to remove STAY action (change also chase_env.py)
         GymWrapper.__init__(self, env, action_list)
 
     def labeled_observations(self, space, obs, sbs=""):
@@ -94,11 +95,11 @@ class ChaseAgent(OpencogAgent):
 
 if __name__ == "__main__":
     # Init loggers
-    log.set_level("debug")
+    log.set_level("error")
     log.set_sync(False)
     agent_log.set_level("fine")
     agent_log.set_sync(False)
-    ure_logger().set_level("debug")
+    ure_logger().set_level("error")
     ure_logger().set_sync(False)
 
     # Set main atomspace
@@ -119,13 +120,21 @@ if __name__ == "__main__":
         par = ca.accumulated_reward  # Keep track of the reward before
         # Discover patterns to make more informed decisions
         agent_log.info("Start learning ({}/{})".format(i + 1, lt_iterations))
+        print("Start learning ({}/{})".format(i + 1, lt_iterations))
         ca.learn()
         # Run agent to accumulate percepta
         agent_log.info("Start training ({}/{})".format(i + 1, lt_iterations))
+        print("Start training ({}/{})".format(i + 1, lt_iterations))
+        print("step_count:")
         for j in range(lt_period):
             ca.step()
             time.sleep(0.1)
-            log.info("step_count = {}".format(ca.step_count))
+            agent_log.info("step_count = {}".format(ca.step_count))
+            if j % 10 == 0:
+                print("{} ".format(ca.step_count), end="", flush=True)
         nar = ca.accumulated_reward - par
         agent_log.info("Accumulated reward during {}th iteration = {}".format(i + 1, nar))
         agent_log.info("Action counter during {}th iteration:\n{}".format(i+1, ca.action_counter))
+        print("\nAccumulated reward during {}th iteration = {}".format(i + 1, nar))
+        print("Action counter during {}th iteration:\n{}".format(i+1, ca.action_counter))
+    print("End Experiment")
