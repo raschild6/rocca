@@ -27,6 +27,7 @@ env = gym.make('Chase-v0')
 # Chase Wrapper #
 #################
 
+
 class CartPoleWrapper(GymWrapper):
     def __init__(self, env):
         action_list = ["Go Left", "Go Right", "Stay", "Eat"]
@@ -91,7 +92,6 @@ class ChaseAgent(OpencogAgent):
         OpencogAgent.__init__(self, env, action_space, pgoal, ngoal)
 
 
-
 if __name__ == "__main__":
     # Init loggers
     log.set_level("debug")
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     ca = ChaseAgent(wrapped_env)
 
     # Training/learning loop
-    lt_iterations = 2           # Number of learning-training iterations
+    lt_iterations = 3           # Number of learning-training iterations
     lt_period = 200             # Duration of a learning-training iteration
     for i in range(lt_iterations):
         ca.reset_action_counter()

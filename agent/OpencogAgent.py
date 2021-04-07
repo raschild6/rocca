@@ -67,7 +67,6 @@ class OpencogAgent:
         # as a rest in the Solomonoff mixture.
         self.delta = 1.0e-5
 
-
     def __del__(self):
         self.env.close()
 
@@ -80,9 +79,9 @@ class OpencogAgent:
         # Load PLN
         scheme_eval(self.atomspace, "(use-modules (opencog pln))")
         # scheme_eval(self.atomspace, "(pln-load-rule 'predictive-implication-scope-direct-introduction)")
-        # scheme_eval(self.atomspace, "(pln-load-rule 'predictive-implication-scope-direct-evaluation)")
+        scheme_eval(self.atomspace, "(pln-load-rule 'predictive-implication-scope-direct-evaluation)")
         # No need of predictive implication for now
-        scheme_eval(self.atomspace, "(pln-load-rule 'predictive-implication-direct-evaluation)")
+        # scheme_eval(self.atomspace, "(pln-load-rule 'predictive-implication-direct-evaluation)")
         scheme_eval(self.atomspace, "(pln-log-atomspace)")
 
     def reset_action_counter(self):
